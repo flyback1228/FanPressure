@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_FanPressure_FILE /home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/FanPressure)
-set(__QT_DEPLOY_TARGET_FanPressure_TYPE EXECUTABLE)
