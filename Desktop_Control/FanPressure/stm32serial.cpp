@@ -56,7 +56,7 @@ void Stm32Serial::run()
 {
     while(!stop_flag_){
         if(port_.isOpen()){
-            port_.readAll()
+            auto array = port_.readAll()
         }
         QThread::sleep(100);
     }
