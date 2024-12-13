@@ -1,0 +1,9 @@
+# ninja log v6
+1	157	1734120869607488416	FanPressure_autogen/timestamp	41d2fa3d0ad229a
+1	157	1734120869607488416	FanPressure_autogen/mocs_compilation.cpp	41d2fa3d0ad229a
+1	157	1734120869607488416	/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/FanPressure_autogen/timestamp	41d2fa3d0ad229a
+1	157	1734120869607488416	/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/FanPressure_autogen/mocs_compilation.cpp	41d2fa3d0ad229a
+157	930	1734120869611488444	CMakeFiles/FanPressure.dir/FanPressure_autogen/mocs_compilation.cpp.o	f34d2c3c7f781b4c
+973	1105	1734120870427494095	FanPressure	2c38db44d3a7ff6b
+157	951	1734120869611488444	CMakeFiles/FanPressure.dir/main.cpp.o	e1070b213dbff75b
+157	973	1734120869611488444	CMakeFiles/FanPressure.dir/mainwindow.cpp.o	21ee6640d284e09e

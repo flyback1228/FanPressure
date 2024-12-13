@@ -1,0 +1,10 @@
+../Core/Inc/Ads1256/ads1256.c:64:9:ADS125X_Init	40	static
+../Core/Inc/Ads1256/ads1256.c:132:9:ADS125X_DRDY_Wait	16	static
+../Core/Inc/Ads1256/ads1256.c:142:9:ADS125X_CS	16	static
+../Core/Inc/Ads1256/ads1256.c:158:6:ADS125X_ADC_Code2Volt	32	static
+../Core/Inc/Ads1256/ads1256.c:176:7:ADS125X_ADC_ReadVolt	24	static
+../Core/Inc/Ads1256/ads1256.c:206:9:ADS125X_Register_Read	32	static
+../Core/Inc/Ads1256/ads1256.c:230:9:ADS125X_Register_Write	24	static
+../Core/Inc/Ads1256/ads1256.c:252:9:ADS125X_CMD_Send	24	static
+../Core/Inc/Ads1256/ads1256.c:269:6:ADS125X_Channel_Set	16	static
+../Core/Inc/Ads1256/ads1256.c:281:9:ADS125X_ChannelDiff_Set	24	static

@@ -1,0 +1,9 @@
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/FanPressure.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/edit_cache.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/rebuild_cache.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/list_install_components.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/install.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/install/local.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/install/strip.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/FanPressure_autogen_timestamp_deps.dir
+/home/xli428/Documents/QT/FanPressure/build/Desktop_Qt_6_8_1-Debug/CMakeFiles/FanPressure_autogen.dir
