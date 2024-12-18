@@ -208,25 +208,18 @@ void setup(){
 }
 
 void loop(){
-	//char data[]="hello";
 
-	//float volt[2] = {0.0f, 0.0f};
-	//ADS125X_ChannelDiff_Set(&ads1256, ADS125X_MUXP_AIN0, ADS125X_MUXN_AIN1);
-	//volt[0] = ADS125X_ADC_ReadVolt(&ads1256);
-	//printf("voltage: %.15f\n", volt[0]);
 	auto start_time = HAL_GetTick();
 
 	//check bk1697 is connected
 	rx485SendData((uint8_t*)"GETS00\r",7);
 	if(HAL_UART_Receive(&huart2, rx2_buf, 13, 50)==HAL_OK){
-		//bk1697_connected_ = 1;
 		if(rx2_buf[10]=='O' && rx2_buf[11]=='K'){
 			sensor.bool_register |= 0x01;
 			sensor.bk1697_voltage = (rx2_buf[0]-'0')*1000 + (rx2_buf[1]-'0')*100 + (rx2_buf[2]-'0')*10 + (rx2_buf[3]-'0');
 			sensor.bk1697_current = (rx2_buf[4]-'0')*1000 + (rx2_buf[5]-'0')*100 + (rx2_buf[6]-'0')*10 + (rx2_buf[7]-'0');
 		}
-	}else{
-		//bk1697_connected_ = 0;
+	}else{ //bk not connected
 		sensor.bk1697_voltage = 0;
 		sensor.bk1697_current = 0;
 		//set last two bits ZERO
@@ -247,10 +240,13 @@ void loop(){
 		}
 	}
 
-	//bit 0: start; bit 1: bk front panel lock; bit 2: read ads1256; bit 3: control mode;
+	//bit 0: run state; bit 1: bk front panel lock; bit 2: read ads1256; bit 3: control mode;
+
+	//run state changes
 	if(register_changed & 0x01){
 		control_start = current_cmd_.bool_register & 0x01;
 		register_changed &= 0b11111110;
+
 	}
 
 	if((register_changed & 0x02) && (sensor.bool_register & 0x01)){
