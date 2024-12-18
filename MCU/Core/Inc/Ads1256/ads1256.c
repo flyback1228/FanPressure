@@ -46,7 +46,7 @@ SOFTWARE.
 #include <Ads1256/ads1256.h>
 #include <stdint.h>
 
-#define DEBUG_ADS1256
+//#define DEBUG_ADS1256
 
 #ifdef DEBUG_ADS1256
 #include <stdio.h>
@@ -91,6 +91,8 @@ uint8_t ADS125X_Init(ADS125X_t *ads, SPI_HandleTypeDef *hspi, uint8_t drate, uin
 	ADS125X_CMD_Send(ads, ADS125X_CMD_RESET);
 	HAL_Delay(5);
 	ADS125X_CMD_Send(ads, ADS125X_CMD_SDATAC);
+	HAL_Delay(5);
+	ADS125X_CMD_Send(ads, ADS125X_SELFCAL);
 
 
 #ifdef DEBUG_ADS1256

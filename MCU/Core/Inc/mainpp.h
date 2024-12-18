@@ -16,24 +16,56 @@ typedef enum {
  NONE
 } BK1697_Lable;
 
-typedef  struct __attribute__((packed)) {
+typedef  struct  {
 	char header[3];
-    uint8_t bk1697_screen_lock;
-    float bk1697_setpoint;
-    char tailer[3];
+	//bit 0: start; bit 1: bk front panel lock; bit 2: read ads1256; bit 3: control mode;
+	uint8_t bool_register;
+
+	//XX.X
+    uint16_t bk1697_set_voltage;
+
+    uint16_t fan_speed_setpoint;
+
+
+
+
+    char tailer[4];
 } Command_t;
 
 
-typedef  struct __attribute__((packed)) {
+typedef  struct  {
 	char header[3];
-    uint8_t bk1697_screen_locked;
-    float bk1697_voltage;
-    float bk1697_current;
-    char tailer[3];
+	//bit 0: bk connected; bit 1: bk front panel locked
+    uint8_t bool_register;
+
+    //XX.X
+    uint16_t bk1697_voltage;
+
+    //X.XX
+    uint16_t bk1697_current;
+
+    //X.XXX
+    int16_t ads1256_channel_1;
+    int16_t ads1256_channel_2;
+    int16_t ads1256_channel_3;
+    int16_t ads1256_channel_4;
+
+    //XX.XX
+    uint16_t fan_voltage;
+    //XX.XXX
+    uint16_t fan_current;
+
+
+
+    uint16_t fan_speed;
+    uint16_t error_code;
+
+
+    char tailer[4];
 } Sensor_t;
 
-#define DEFAULT_COMMAND { {'S','Y','R'}, 0,0.0,{'C','O','E'} }
-#define DEFAULT_SENSOR { {'S','Y','R'}, 0,0.0,0.0,{'C','O','E'} }
+#define DEFAULT_SENSOR { {'S','U','R'}, 0,0,0,0,0,0,0,0,0,0,0,{'C','O','E','\n'} }
+#define DEFAULT_COMMAND { {'S','Y','R'}, 0,0,0,{'C','O','E','\n'} }
 
 void setup();
 
