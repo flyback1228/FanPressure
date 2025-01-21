@@ -1,0 +1,29 @@
+../Core/Src/Ina219.cpp:32:1:INA219::INA219(uint8_t, I2C_HandleTypeDef*)	1
+../Core/Src/Ina219.cpp:43:6:bool INA219::begin()	2
+../Core/Src/Ina219.cpp:50:6:bool INA219::isConnected()	4
+../Core/Src/Ina219.cpp:63:9:uint8_t INA219::getAddress()	1
+../Core/Src/Ina219.cpp:73:7:float INA219::getShuntVoltage()	1
+../Core/Src/Ina219.cpp:80:7:float INA219::getBusVoltage()	2
+../Core/Src/Ina219.cpp:92:7:float INA219::getPower()	1
+../Core/Src/Ina219.cpp:100:7:float INA219::getCurrent()	1
+../Core/Src/Ina219.cpp:107:6:bool INA219::getMathOverflowFlag()	1
+../Core/Src/Ina219.cpp:114:6:bool INA219::getConversionFlag()	1
+../Core/Src/Ina219.cpp:125:6:bool INA219::reset()	1
+../Core/Src/Ina219.cpp:138:6:bool INA219::setBusVoltageRange(uint8_t)	4
+../Core/Src/Ina219.cpp:152:9:uint8_t INA219::getBusVoltageRange()	2
+../Core/Src/Ina219.cpp:160:6:bool INA219::setGain(uint8_t)	8
+../Core/Src/Ina219.cpp:178:9:uint8_t INA219::getGain()	4
+../Core/Src/Ina219.cpp:189:5:int INA219::getMaxShuntVoltage()	1
+../Core/Src/Ina219.cpp:200:6:bool INA219::setBusResolution(uint8_t)	3
+../Core/Src/Ina219.cpp:215:6:bool INA219::setBusSamples(uint8_t)	2
+../Core/Src/Ina219.cpp:229:6:bool INA219::setBusADC(uint8_t)	2
+../Core/Src/Ina219.cpp:242:9:uint8_t INA219::getBusADC()	1
+../Core/Src/Ina219.cpp:254:6:bool INA219::setShuntResolution(uint8_t)	3
+../Core/Src/Ina219.cpp:269:6:bool INA219::setShuntSamples(uint8_t)	2
+../Core/Src/Ina219.cpp:283:6:bool INA219::setShuntADC(uint8_t)	2
+../Core/Src/Ina219.cpp:296:9:uint8_t INA219::getShuntADC()	1
+../Core/Src/Ina219.cpp:308:6:bool INA219::setMode(uint8_t)	2
+../Core/Src/Ina219.cpp:320:9:uint8_t INA219::getMode()	1
+../Core/Src/Ina219.cpp:332:6:bool INA219::setMaxCurrentShunt(float, float)	3
+../Core/Src/Ina219.cpp:357:10:uint16_t INA219::_readRegister(uint8_t)	1
+../Core/Src/Ina219.cpp:366:19:HAL_StatusTypeDef INA219::_writeRegister(uint8_t, uint16_t)	1
