@@ -1,0 +1,4 @@
+.metadata/
+FanPressure/.settings/
+FanPressure/Debug/*
+!FanPressure/Debug/*.elf
