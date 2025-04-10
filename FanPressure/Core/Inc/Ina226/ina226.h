@@ -1,9 +1,7 @@
 /**
   ********************************************************************************
-  * @brief   STM32 HAL Library for INA226 Current/Power Monitor
-  * @date    Feb 2016
-  * @version 1.0
-  * @author  George Christidis
+  * @brief   INA226 class
+  * @author  Xilin Li
   ********************************************************************************
   * @details
 			This library contains the necessary functions to initialize, read and
@@ -45,11 +43,10 @@ extern "C" {
 #define INA226_ADDRESS	0x80
 #endif
 
+/*
 #define INA226_CALIB_VAL		512
-#define INA226_CURRENTLSB		0.1F // mA/bit
-#define INA226_CURRENTLSB_INV	1/INA226_CURRENTLSB // bit/mA
-#define INA226_POWERLSB_INV		1/(INA226_CURRENTLSB*25) // bit/mW
-#define INA226_I2CTIMEOUT		10
+#define INA226_CURRENTLSB		0.0001F // A/bit
+#define INA226_I2CTIMEOUT		10*/
 
 #define INA226_CONFIG		0x00 // Configuration Register (R/W)
 #define INA226_SHUNTV		0x01 // Shunt Voltage (R)
@@ -121,6 +118,52 @@ extern "C" {
 //#define INA226_MANUF_ID_DEFAULT	0x5449
 //#define INA226_DIE_ID_DEFAULT		0x2260
 
+class INA226{
+public:
+	//INA226();
+	INA226(I2C_HandleTypeDef* i2c_handle,float current_lsb,float shunt_resistant, uint8_t address);
+	INA226(I2C_HandleTypeDef* i2c_handle,uint8_t address);
+
+	float Get_Bus_Voltage();
+	float Get_Current();
+	float Get_Power();
+	float Get_Shunt_Voltage();
+
+	uint16_t Get_Bus_Voltage_Raw();
+	uint16_t Get_Current_Raw();
+	uint16_t Get_Power_Raw();
+	uint16_t Get_Shunt_Voltage_Raw();
+
+	uint8_t Set_Config(uint16_t config_word);
+	uint16_t Get_Config();
+	//uint16_t Get_Shunt_Voltage_Reg();
+	//uint16_t Get_Bus_Voltage_Reg();
+	//uint16_t Get_Power_Reg();
+	uint8_t Set_Calibration_Reg(uint16_t config_word);
+	uint16_t Get_Calibration_Reg();
+	uint16_t Get_Current_Reg();
+	uint16_t Get_Manufacture_ID();
+	uint16_t Get_Die_ID();
+	uint8_t Set_Mask_Enable(uint16_t config_word);
+	uint16_t Get_Mask_Enable();
+	uint8_t Set_Alert_Limit(uint16_t config_word);
+	uint16_t Get_Alert_Limit();
+
+	void Set_R_Shunt_And_A_Max(float shunt_resistant,float a_max);
+
+
+private:
+	const uint32_t time_out_ = 10;
+	const float voltage_lsb_ = 0.00125;
+	const float shunt_voltage_lsb_ = 0.0000025;
+	float shunt_resistant_ = 0.1f;
+	uint16_t calibration_;
+	uint8_t address_ = 0x80;
+	float current_lsb_;
+	I2C_HandleTypeDef* i2c_handle_ = nullptr;
+};
+
+/*
 uint16_t INA226_getBusVRaw(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);
 uint16_t INA226_getCurrentRaw(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);
 uint16_t INA226_getPowerRaw(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);
@@ -139,7 +182,7 @@ uint16_t INA226_getDieID(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);
 uint8_t INA226_setMaskEnable(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress, uint16_t ConfigWord);
 uint16_t INA226_getMaskEnable(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);
 uint8_t INA226_setAlertLimit(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress, uint16_t ConfigWord);
-uint16_t INA226_getAlertLimit(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);
+uint16_t INA226_getAlertLimit(I2C_HandleTypeDef *I2CHandler, uint16_t DevAddress);*/
 
 #ifdef __cplusplus
 } // extern "C"

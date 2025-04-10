@@ -34,7 +34,7 @@ extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim2;
 
-extern IWDG_HandleTypeDef hiwdg;
+//extern IWDG_HandleTypeDef hiwdg;
 
 //voltage setpoint limit
 uint8_t min_voltage = 0;
@@ -64,6 +64,9 @@ Sensor_t sensor = DEFAULT_SENSOR;
 
 // pid
 PID<float>* pid;
+
+//ina226
+INA226* ina226;
 
 // pid variables
 float speed_frequency = 0.0;
@@ -218,13 +221,18 @@ void Rx485_Send_Data (uint8_t *data, uint16_t size)
 void Calc_Velocity(){
 	if(speed_increment_count >= SPEED_MAX_INCREMENT){
 		speed_increment_count = SPEED_MAX_INCREMENT;
-		memset(pulse,0,SPEED_BUFFER_SIZE*sizeof(uint8_t));
+		memset(pulse,0,SPEED_BUFFER_SIZE*sizeof(uint32_t));
 		speed_frequency = 0;
 		sensor.fan_speed = 0;
 		return;
 	}
 
-	uint32_t s=pulse[(pulse_index+SPEED_BUFFER_SIZE-1)%SPEED_BUFFER_SIZE]-pulse[pulse_index];
+	__disable_irq();
+	uint32_t s1 = pulse[(pulse_index+SPEED_BUFFER_SIZE-1)%SPEED_BUFFER_SIZE];
+	uint32_t s2 = pulse[pulse_index];
+	__enable_irq();
+
+	uint32_t s=s1-s2;
 
 	if(s==0)
 		speed_frequency = 0;
@@ -320,11 +328,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 
 		if(!run_state){
 			//bk1697_previous_volt = pid_bk_output*10;
+			//set bk1697 with 1 because the command with 0 not work, may be due to the hardware set of bk1697
 			if(bk1697_same_count > 4 || bk1697_previous_volt >0){
 				if(bk1697_previous_volt>0){
-					bk1697_previous_volt==0;
+					bk1697_previous_volt=0;
 				}else
-					bk1697_previous_volt==1;
+					bk1697_previous_volt=1;
 
 				pid_bk_output = 0.0;
 				char data[10];
@@ -338,7 +347,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 		//manual control
 		if(control_mode){
 			if(current_cmd_.voltage!=bk1697_previous_volt){
-			//if(bk1697_same_count > 4 || current_cmd_.voltage!=bk1697_previous_volt){
 				auto v = current_cmd_.voltage;
 				if(v==0){
 					if(bk1697_previous_volt==0){
@@ -370,7 +378,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 			bk1697_same_count = 0;
 		}
 
-	}else if(htim->Instance == TIM4){
+	}
+	//TIM4 timeout, speed calculation and upload the sensor data to host
+	else if(htim->Instance == TIM4){
 		Calc_Velocity();
 		HAL_UART_Transmit(&huart1, (uint8_t*)(&sensor), sizeof(Sensor_t), 20);
 		if(sensor.bool_register & 0x02)
@@ -378,30 +388,40 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
 	}
 }
 
-
+/***
+ * external gpio pin interrupt. record the time when the interrupt triggers. used for speed calculation
+ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	if(GPIO_Pin == SPEED_Pin){
-		pulse[pulse_index]=micros();
-		++pulse_index;
-		pulse_index%=SPEED_BUFFER_SIZE;
-		speed_increment_count=0;
+		static uint32_t last_interrupt_time = 0;
+		uint32_t interrupt_time = micros();
+
+		if ((interrupt_time - last_interrupt_time) > 2000) { // ignore pulses < 1 ms
+			pulse[pulse_index++] = interrupt_time;
+			pulse_index %= SPEED_BUFFER_SIZE;
+			speed_increment_count=0;
+			last_interrupt_time = interrupt_time;
+		}
+
 	}
 }
 
+/***
+ * setup function, call once after all peripheral initializes
+ */
 void setup(){
-
 	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_SET);
 	HAL_GPIO_WritePin(PWR_EN_GPIO_Port, PWR_EN_Pin, GPIO_PIN_RESET);
 
-	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx1_buf, RX_BUF_SIZE);
-	HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx2_buf, RX_BUF_SIZE);
+
 
 	DWT_Init();
 
-	INA226_setConfig(&hi2c1, INA226_ADDRESS, INA226_MODE_CONT_SHUNT_AND_BUS | INA226_VBUS_140uS | INA226_VBUS_140uS | INA226_AVG_1024);
+	//INA226_setConfig(&hi2c1, INA226_ADDRESS, INA226_MODE_CONT_SHUNT_AND_BUS | INA226_VBUS_140uS | INA226_VBUS_140uS | INA226_AVG_1024);
+	//INA226_setCalibrationReg(&hi2c1, INA226_ADDRESS,INA226_CALIB_VAL);
 
-	INA226_setCalibrationReg(&hi2c1, INA226_ADDRESS,INA226_CALIB_VAL);
+	ina226 = new INA226(&hi2c1,0.0002f,0.024,0x80);
 
 	HAL_Delay(10);
 
@@ -422,18 +442,27 @@ void setup(){
 	// notify compute to resend the command
 	sensor.bool_register |= 0x02;
 
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart1, rx1_buf, RX_BUF_SIZE);
+	HAL_UARTEx_ReceiveToIdle_DMA(&huart2, rx2_buf, RX_BUF_SIZE);
+
 }
 
+/***
+ * called in while function.
+ */
 void loop(){
-
 	auto start_time = HAL_GetTick();
+
+	//switch LED status
 	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 
-	HAL_IWDG_Refresh(&hiwdg);
+	//refresh watchdog
+	//HAL_IWDG_Refresh(&hiwdg);
 
-
+	//this variable is set to ZERO in the gpio interrupt callback. if reachs SPEED_MAX_INCREMENT, the speed buffer will set to ZEROs
 	speed_increment_count++;
 
+	//bk1697_increment_count is same as speed_increment_count. reaching to 8 means that bk1697 is not connected.
 	if(bk1697_increment_count++>8){
 		bk1697_connected=0;
 		sensor.bool_register &= 0b11111110;
@@ -445,6 +474,7 @@ void loop(){
 		sensor.bool_register |= 0x01;
 	}
 
+	//if bk1697 is not connected, try to send this command to bk1697 to re-check its status. if response, the handle is in the uart receive callback function
 	if(!bk1697_connected ){
 		char data[8];
 		sprintf(data,"SOUT01%d\r",int(!run_state));
@@ -468,16 +498,17 @@ void loop(){
 
 	sensor.bk1697_voltage = pid_bk_output*10;
 
-	uint16_t bus_v = INA226_getBusVRaw(&hi2c1, INA226_ADDRESS);
-	uint16_t bus_c = INA226_getCurrentRaw(&hi2c1, INA226_ADDRESS);
-	uint16_t bus_p = INA226_getPowerRaw(&hi2c1, INA226_ADDRESS);
-	uint16_t shunt_v = INA226_getShuntVRaw(&hi2c1, INA226_ADDRESS);
+	//read ina226 state
+	uint16_t bus_v = ina226->Get_Bus_Voltage_Raw();
+	uint16_t bus_c = ina226->Get_Current_Raw();
+	uint16_t bus_p = ina226->Get_Power_Raw();
+	uint16_t shunt_v = ina226->Get_Shunt_Voltage_Raw();
 
 	sensor.fan_current = bus_c!=0xFF?bus_c:0;
 	sensor.fan_power = bus_p!=0xFF?bus_p:0;
 	sensor.fan_voltage = bus_v!=0xFF?bus_v:0;
 	sensor.fan_shunt_voltage = shunt_v!=0xFF?shunt_v:0;
 
-
+	//the loop time 500ms
 	while(HAL_GetTick()-start_time<500);
 }
